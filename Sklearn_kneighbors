@@ -1,0 +1,37 @@
+from sklearn.model_selection import train_test_split,cross_val_score,GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+import pandas as pd
+import numpy as np
+
+df_train=pd.read_csv('train.csv',header=None)
+df_test=pd.read_csv('test.csv',header=None)
+df_trainlabel=pd.read_csv('trainLabels.csv',head=None)
+
+df_train.describe()
+df_train.info()
+
+x=df_train
+y=np.ravel(df_trainlabel)
+
+X_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3,random_state=40)
+
+knc=KNeighborsClassifier(n_neighbors=3)
+knc.fit(X_train,y_train)
+score=knc.score(X_train,y_train)
+
+##############try to find out how many neighbors will get the best score
+scores=[]
+for i in range(1,20):
+    knc=KNeighborsClassifier(n_neighbors=i)
+    knc.fit(X_train,y_train)
+    score=knc.score(X_train,y_train)
+    scores.append(score)
+print(max(scores),scores.index(max(scores))+1)
+
+#############use cross_validation to see if the score of the model will be better
+knc_val=KNeighborsClassifier(n_neighbors=3)
+knv_val.fit(X_train,y_train)
+knc_val_score=cross_val_score(knv_val,X_train,y_train,cv=10).mean()
+print(knc_val_score)
+
+##############we find out that use the KNeighbors will be overfitting and try to use learning_curve to fix overfitting
