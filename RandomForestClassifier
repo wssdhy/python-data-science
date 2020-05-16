@@ -70,5 +70,74 @@ rfc=RandomForestClassifier(random_state=10)
 score=cross_val_score(rfc,x,y,cv=10).mean()
 score
 
+0.8009193054136874
+########find the best n_estimators
+scores=[]
+for i in range(1,51):
+    rfc=RandomForestClassifier(n_estimators=i,random_state=10)
+    score=cross_val_score(rfc,x,y,cv=10).mean()
+    scores.append(score)
+print('The highest score is {} and the i is {}:'.format(max(scores),scores.index(max(scores))+1))
 
+The highest score is 0.8155515832482125 and the i is 32
+
+plt.plot(range(1,51),scores)
+plt.show()
+
+#######find the best max_depth
+scores=[]
+for i in range(1,11):
+    rfc=RandomForestClassifier(n_estimators=32,max_depth=i,random_state=10)
+    score=cross_val_score(rfc,x,y,cv=10).mean()
+    scores.append(score)
+print('the best score {} and the max_depth {}'.format(max(scores),scores.index(max(scores))+1))
+
+the best score 0.8290602655771195 and the max_depth 6
+
+params={'min_samples_leaf':range(1,11,1)}
+rfc=RandomForestClassifier(n_estimators=32,max_depth=6,random_state=10)
+GS=GridSearchCV(rfc,params,cv=10)
+GS.fit(x,y)
+
+GS.best_params_
+{'min_samples_leaf': 2}
+GS.best_score_
+0.8335418794688456
+
+params={'min_samples_split':range(2,22,1)}
+rfc=RandomForestClassifier(n_estimators=32,max_depth=6,min_samples_leaf=2,random_state=10)
+GS=GridSearchCV(rfc,params,cv=10)
+GS.fit(x,y)
+
+GS.best_params_
+{'min_samples_split': 2}
+
+params={'max_features':np.arange(0,8,1)}
+rfc=RandomForestClassifier(n_estimators=32,max_depth=6,min_samples_leaf=2,min_samples_split=2,random_state=10)
+GS=GridSearchCV(rfc,params,cv=10)
+GS.fit(x,y)
+
+GS.best_params_
+{'max_features': 5}
+
+rfc=RandomForestClassifier(n_estimators=32,max_depth=6,min_samples_leaf=2,min_samples_split=2,max_features=5,random_state=10)
+score=cross_val_score(rfc,x,y,cv=10).mean()
+score
+0.8346271705822266
+
+df_test
+label_s=df_test['Sex'].unique().tolist()
+label_e=df_test['Embarked'].unique().tolist()
+
+df_test['Sex']=df_test['Sex'].apply(lambda x:label_s.index(x))
+df_test['Embarked']=df_test['Embarket'].apply(lambda x : label_e.index(x))
+
+df_test['Age']=df_test['Age'].fillna(df_test['Age'].mean())
+df_test=df_test.dropna()
+
+rfc.fit(x,y)
+pre=rfc.predict(df_test)
+prediction=pd.DataFrame(pre,columns=['Survived'])
+
+result=pd.concat([df_test,prediction],axis=1)
 
